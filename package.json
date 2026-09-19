@@ -1,0 +1,13 @@
+{
+  "name": "product-watcher",
+  "private": true,
+  "packageManager": "pnpm@9.15.0",
+  "scripts": {
+    "dev:web": "pnpm --dir apps/web dev --host 127.0.0.1",
+    "dev:api": "pnpm --dir apps/api dev --host 127.0.0.1 --port 8787",
+    "build": "pnpm -r --if-present run build",
+    "lint": "pnpm -r --if-present run lint",
+    "test": "pnpm -r --if-present run test",
+    "check": "pnpm lint && pnpm test && pnpm build"
+  }
+}

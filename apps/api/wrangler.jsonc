@@ -1,0 +1,14 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "product-watcher-api",
+  "main": "src/index.ts",
+  "compatibility_date": "2025-07-18",
+  "vars": {
+    "API_ENV": "local",
+    "SERVICE_NAME": "api"
+  },
+  "routes": [],
+  "observability": {
+    "enabled": true
+  }
+}
