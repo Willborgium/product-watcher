@@ -11,7 +11,7 @@
     {
       "binding": "DB",
       "database_name": "product-watcher-db",
-      "database_id": "local-product-watcher-db"
+      "database_id": "5b1b03ea-8fd6-4f57-82ff-b582e2c14838"
     }
   ],
   "routes": [],
