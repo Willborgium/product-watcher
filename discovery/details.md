@@ -1,0 +1,6 @@
+- front-end
+  - production: product-watcher-web.wjcustode.workers.dev
+  - preview: \*-product-watcher-web.wjcustode.workers.dev
+- back-end
+  - production: product-watcher-api.wjcustode.workers.dev
+  - preview: \*-product-watcher-api.wjcustode.workers.dev

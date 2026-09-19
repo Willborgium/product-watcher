@@ -7,6 +7,13 @@
     "API_ENV": "local",
     "SERVICE_NAME": "api"
   },
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "product-watcher-db",
+      "database_id": "local-product-watcher-db"
+    }
+  ],
   "routes": [],
   "observability": {
     "enabled": true

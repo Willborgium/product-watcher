@@ -8,12 +8,16 @@
     "build": "tsc --noEmit",
     "lint": "tsc --noEmit",
     "test": "vitest run --passWithNoTests",
+    "db:apply": "wrangler d1 migrations apply product-watcher-db --local --persist-to .wrangler/state",
+    "db:seed": "wrangler d1 execute product-watcher-db --local --persist-to .wrangler/state --file ./src/db/seed.sql",
+    "db:verify": "node ./scripts/verify-local-db.mjs",
     "deploy": "wrangler deploy"
   },
   "dependencies": {
     "hono": "^4.7.10"
   },
   "devDependencies": {
+    "@cloudflare/workers-types": "^4.20250917.0",
     "@types/node": "^22.10.2",
     "typescript": "^5.7.2",
     "vitest": "^2.1.8",

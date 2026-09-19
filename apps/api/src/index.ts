@@ -1,7 +1,8 @@
 import { Hono } from 'hono';
 import { cors } from 'hono/cors';
+import { migrationStatus } from './db';
 
-const app = new Hono<{ Bindings: { API_ENV?: string; SERVICE_NAME?: string } }>();
+const app = new Hono<{ Bindings: { API_ENV?: string; SERVICE_NAME?: string; DB?: any } }>();
 
 app.use(
   '*',
@@ -31,6 +32,26 @@ app.get('/', (c) => {
     service: c.env?.SERVICE_NAME ?? 'api',
     message: 'Product Watcher API is running.',
   });
+});
+
+app.get('/db/health', async (c) => {
+  const db = c.env?.DB;
+  if (!db) {
+    return c.json({ ok: false, error: 'Database binding missing.' }, 500);
+  }
+
+  try {
+    const stats = await migrationStatus(db);
+    return c.json({
+      ok: true,
+      service: c.env?.SERVICE_NAME ?? 'api',
+      database: 'product-watcher-db',
+      tables: stats.tables,
+      count: stats.count,
+    });
+  } catch (error) {
+    return c.json({ ok: false, error: error instanceof Error ? error.message : 'Unknown DB error.' }, 500);
+  }
 });
 
 export default app;
