@@ -25,6 +25,8 @@ dist/
 out/
 coverage/
 .cache/
+.wrangler/
+*.tsbuildinfo
 
 # Python
 __pycache__/
