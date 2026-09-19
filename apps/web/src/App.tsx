@@ -7,7 +7,11 @@ type HealthResponse = {
   timestamp: string;
 };
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? 'http://127.0.0.1:8787';
+const DEFAULT_API_BASE_URL = import.meta.env.DEV
+  ? 'http://127.0.0.1:8787'
+  : 'https://product-watcher-api.wjcustode.workers.dev';
+
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? DEFAULT_API_BASE_URL;
 
 function App() {
   const [status, setStatus] = useState<'loading' | 'reachable' | 'unreachable'>('loading');

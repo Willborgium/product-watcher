@@ -4,10 +4,23 @@ import { migrationStatus } from './db';
 
 const app = new Hono<{ Bindings: { API_ENV?: string; SERVICE_NAME?: string; DB?: any } }>();
 
+const allowedOrigins = new Set([
+  'http://127.0.0.1:5173',
+  'http://localhost:5173',
+  'https://product-watcher-web.wjcustode.workers.dev',
+  'https://product-watcher-web.pages.dev',
+]);
+
 app.use(
   '*',
   cors({
-    origin: ['http://127.0.0.1:5173', 'http://localhost:5173'],
+    origin: (origin) => {
+      if (!origin) return '*';
+      if (allowedOrigins.has(origin)) return origin;
+      if (origin.endsWith('.product-watcher-web.wjcustode.workers.dev')) return origin;
+      if (origin.endsWith('.pages.dev')) return origin;
+      return 'null';
+    },
     allowMethods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     allowHeaders: ['Content-Type', 'Authorization'],
     credentials: true,
