@@ -7,8 +7,13 @@ export function isValidEmail(value: string): boolean {
 }
 
 export function normalizeUrl(value: string): string {
+  const normalized = value.trim();
+  if (!normalized) {
+    throw new Error('URL is required');
+  }
+
   try {
-    return new URL(value.trim()).toString();
+    return new URL(normalized).toString();
   } catch {
     throw new Error('Invalid URL');
   }
@@ -23,16 +28,34 @@ export function slugify(value: string): string {
     .slice(0, 120) || 'product';
 }
 
+export function detectDuplicateSellerUrl(candidateUrl: string, existingUrls: Array<string | null | undefined>): boolean {
+  if (!candidateUrl || !candidateUrl.trim()) {
+    return false;
+  }
+
+  const normalizedCandidate = normalizeUrl(candidateUrl).toLowerCase();
+  return existingUrls.some((existingUrl) => {
+    if (!existingUrl || !existingUrl.trim()) {
+      return false;
+    }
+
+    return normalizeUrl(existingUrl).toLowerCase() === normalizedCandidate;
+  });
+}
+
 export function validateProductPayload(payload: { name?: string; slug?: string }) {
-  if (!payload.name || !payload.name.trim()) {
+  const name = payload.name?.trim();
+  if (!name) {
     return { ok: false as const, error: 'Product name is required.' };
   }
+
+  const slug = (payload.slug ?? slugify(name)).trim() || slugify(name);
 
   return {
     ok: true as const,
     value: {
-      name: payload.name.trim(),
-      slug: (payload.slug ?? slugify(payload.name)).trim() || slugify(payload.name),
+      name,
+      slug,
     },
   };
 }

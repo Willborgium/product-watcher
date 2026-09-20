@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import {
+  detectDuplicateSellerUrl,
   isValidEmail,
   validateProductPayload,
   validateSellerInput,
@@ -27,6 +28,22 @@ describe('database validation helpers', () => {
     expect(validateSubscriptionInput({ productId: 'product-1', email: 'invalid' })).toMatchObject({
       ok: false,
     });
+  });
+
+  it('normalizes product and seller input and catches duplicate seller URLs', () => {
+    expect(validateProductPayload({ name: '  Bike  ', slug: '   ' })).toMatchObject({
+      ok: true,
+      value: { name: 'Bike', slug: 'bike' },
+    });
+    expect(validateProductPayload({ name: '   ' })).toMatchObject({ ok: false });
+
+    expect(
+      validateSellerInput({ productId: 'product-1', url: 'https://EXAMPLE.com/Bike?b=1#frag' }),
+    ).toEqual({ ok: true, normalizedUrl: 'https://example.com/Bike?b=1#frag' });
+
+    expect(
+      detectDuplicateSellerUrl('https://example.com/bike?b=1#frag', ['https://example.com/Bike?b=1#frag']),
+    ).toBe(true);
   });
 
   it('ensures snapshots either have a valid price or explicit failure metadata', () => {
