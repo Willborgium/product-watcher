@@ -15,6 +15,7 @@ import {
   updateProduct,
   updateSeller,
 } from './db';
+import { runDailyScrape } from './scraper';
 
 const app = new Hono<{ Bindings: { API_ENV?: string; SERVICE_NAME?: string; DB?: D1Database } }>();
 
@@ -295,5 +296,27 @@ app.patch('/products/:productId/sellers/:sellerId/enable', async (c) => {
     return jsonError(c, message, /not found/i.test(message) ? 404 : 500);
   }
 });
+
+app.post('/internal/run-scrape', async (c) => {
+  try {
+    const db = getDb(c);
+    const snapshots = await runDailyScrape(db);
+    return c.json({ ok: true, count: snapshots.length, snapshots });
+  } catch (error) {
+    const message = error instanceof Error ? error.message : 'Unknown scrape error.';
+    return jsonError(c, message, 500);
+  }
+});
+
+export async function scheduled(controller: ScheduledController, env: { DB?: D1Database }, _ctx: ExecutionContext) {
+  const db = env.DB;
+  if (!db) {
+    throw new Error('Database binding missing for scheduled scrape.');
+  }
+
+  const snapshots = await runDailyScrape(db);
+  console.log(`Scheduled scrape completed for ${snapshots.length} sellers at ${controller.cron}.`);
+  return snapshots;
+}
 
 export default app;

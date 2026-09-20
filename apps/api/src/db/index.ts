@@ -72,6 +72,11 @@ export async function getProductById(db: D1Database, id: string): Promise<Produc
   return row ?? null;
 }
 
+export async function listActiveProducts(db: D1Database): Promise<ProductRow[]> {
+  const result = await db.prepare('SELECT * FROM products WHERE is_active = 1 ORDER BY created_at ASC').all<ProductRow>();
+  return result.results ?? [];
+}
+
 export async function updateProduct(db: D1Database, id: string, patch: Partial<ProductInput>): Promise<ProductRow> {
   const existing = await getProductById(db, id);
   if (!existing) {
@@ -180,6 +185,39 @@ export async function listSellersForProduct(db: D1Database, productId: string): 
 
 export async function getSellerById(db: D1Database, id: string): Promise<SellerRow | null> {
   const row = await db.prepare('SELECT * FROM sellers WHERE id = ?').bind(id).first<SellerRow>();
+  return row ?? null;
+}
+
+export async function listActiveSellersForProduct(db: D1Database, productId: string): Promise<SellerRow[]> {
+  const result = await db
+    .prepare('SELECT * FROM sellers WHERE product_id = ? AND is_active = 1 ORDER BY created_at ASC')
+    .bind(productId)
+    .all<SellerRow>();
+  return result.results ?? [];
+}
+
+export async function listActiveSellersForScrape(db: D1Database): Promise<SellerRow[]> {
+  const result = await db
+    .prepare(
+      `
+        SELECT s.*
+        FROM sellers s
+        INNER JOIN products p ON p.id = s.product_id
+        WHERE s.is_active = 1 AND p.is_active = 1
+        ORDER BY s.created_at ASC
+      `,
+    )
+    .all<SellerRow>();
+  return result.results ?? [];
+}
+
+export async function getLatestSuccessfulPriceSnapshot(db: D1Database, sellerId: string): Promise<PriceSnapshotRow | null> {
+  const row = await db
+    .prepare(
+      'SELECT * FROM price_snapshots WHERE seller_id = ? AND status = ? ORDER BY scraped_at DESC, created_at DESC LIMIT 1',
+    )
+    .bind(sellerId, 'success')
+    .first<PriceSnapshotRow>();
   return row ?? null;
 }
 
